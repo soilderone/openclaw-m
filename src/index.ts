@@ -33,20 +33,6 @@ import { enableConsoleCapture } from "./logging.js";
 import { runCommandWithTimeout, runExec } from "./process/exec.js";
 import { assertWebChannel, normalizeE164, toWhatsappJid } from "./utils.js";
 
-loadDotEnv({ quiet: true });
-normalizeEnv();
-ensureOpenClawCliOnPath();
-
-// Capture all console output into structured logs while keeping stdout/stderr behavior.
-enableConsoleCapture();
-
-// Enforce the minimum supported runtime before doing any work.
-assertSupportedRuntime();
-
-import { buildProgram } from "./cli/program.js";
-
-const program = buildProgram();
-
 export {
   assertWebChannel,
   applyTemplate,
@@ -77,6 +63,19 @@ const isMain = isMainModule({
 });
 
 if (isMain) {
+  loadDotEnv({ quiet: true });
+  normalizeEnv();
+  ensureOpenClawCliOnPath();
+
+  // Capture all console output into structured logs while keeping stdout/stderr behavior.
+  enableConsoleCapture();
+
+  // Enforce the minimum supported runtime before doing any work.
+  assertSupportedRuntime();
+
+  const { buildProgram } = await import("./cli/program.js");
+  const program = buildProgram();
+
   // Global error handlers to prevent silent crashes from unhandled rejections/exceptions.
   // These log the error and exit gracefully instead of crashing without trace.
   installUnhandledRejectionHandler();
